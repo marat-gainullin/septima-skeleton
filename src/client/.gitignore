@@ -1,0 +1,12 @@
+# npm libraries
+node_modules
+
+# build directory
+build
+
+# node and npm local installation directory
+downloads
+
+# misc
+yarn.lock
+*.log
