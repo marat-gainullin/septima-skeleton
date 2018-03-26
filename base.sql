@@ -1,67 +1,89 @@
 drop all objects;
 
-CREATE USER IF NOT EXISTS SA SALT 'f6e293b0d7d6a619' HASH '50007d9c9583418d29b0d79144556ca7ce646060aacc1af32ffbe2dbf9a4d55e' ADMIN;
-CREATE CACHED TABLE PUBLIC.OWNERS(
-    OWNERS_ID DECIMAL(18, 0) NOT NULL,
-    FIRSTNAME VARCHAR(100),
-    LASTNAME VARCHAR(100),
-    ADDRESS VARCHAR(100),
-    CITY VARCHAR(100),
-    TELEPHONE VARCHAR(100),
-    EMAIL VARCHAR(100)
+Create User If Not Exists SA SALT 'f6e293b0d7d6a619' HASH '50007d9c9583418d29b0d79144556ca7ce646060aacc1af32ffbe2dbf9a4d55e' ADMIN;
+
+Create Table Public.AppUsers (
+    userEmail Varchar(100),
+    userDisplayName Varchar(100),
+    userDigest Varchar(100),
+    userAvatar Varchar(255)
+)
+Alter Table Public.AppUsers Add Constraint Public.appUsersPk Primary Key(userEmail);
+
+Create Table Public.AppUsersGroups (
+    userEmail Varchar(100),
+    userGroup Varchar(100)
+)
+Alter Table Public.AppUsersGroups Add Constraint Public.appUsersGroupsPk Primary Key(userEmail, userGroup);
+
+Create Table Public.AppUsersVerification (
+    userEmail Varchar(100),
+    userNonce Varchar(100),
+    nonceExpiration Timestamp Not Null
+)
+Alter Table Public.AppUsersVerification Add Constraint Public.AppUsersVerificationPk Primary Key(userEmail, userNonce);
+
+Create Table Public.AppUsersPasswordRecovering (
+    userEmail Varchar(100),
+    userNonce Varchar(100),
+    nonceExpiration Timestamp Not Null
+)
+Alter Table Public.AppUsersPasswordRecovering Add Constraint Public.AppUsersPasswordRecoveringPk Primary Key(userEmail, userNonce);
+
+Create cached Table Public.Owners(
+    owners_id Decimal(18, 0) Not Null,
+    firstName Varchar(100),
+    lastName Varchar(100),
+    address Varchar(100),
+    city Varchar(100),
+    telephone Varchar(100),
+    email Varchar(100)
 );
-ALTER TABLE PUBLIC.OWNERS ADD CONSTRAINT PUBLIC.OWNERS_PK PRIMARY KEY(OWNERS_ID);
--- 2 +/- SELECT COUNT(*) FROM PUBLIC.OWNERS;
-INSERT INTO PUBLIC.OWNERS(OWNERS_ID, FIRSTNAME, LASTNAME, ADDRESS, CITY, TELEPHONE, EMAIL) VALUES
+Alter Table Public.Owners Add Constraint Public.ownersPk Primary Key(owners_id);
+-- 2 +/- SELECT COUNT(*) FROM Public.OWNERS;
+insert into Public.Owners(owners_id, firstName, lastName, address, city, telephone, email) Values
 (142841788496711, 'Ivan', 'Ivanov', 'Ivanovskaya st.', 'Ivanovo', '+79011111111', 'sample@example.com'),
 (142841834950629, 'Petr', 'Petrov', 'Petrovskaya', 'Saint Petersburg', '+79022222222', 'test@test.ru');
-CREATE CACHED TABLE PUBLIC.PETS(
-    PETS_ID DECIMAL(18, 0) NOT NULL,
-    OWNER_ID DECIMAL(65535, 32767) NOT NULL,
-    TYPE_ID DECIMAL(65535, 32767) NOT NULL,
-    NAME VARCHAR(100),
-    BIRTHDATE TIMESTAMP
+Create cached Table Public.pets(
+    pets_id Decimal(18, 0) Not Null,
+    owner_id Decimal(65535, 32767) Not Null,
+    type_id Decimal(65535, 32767) Not Null,
+    name Varchar(100),
+    birthDate Timestamp
 );
-ALTER TABLE PUBLIC.PETS ADD CONSTRAINT PUBLIC.PETS_PK PRIMARY KEY(PETS_ID);
--- 3 +/- SELECT COUNT(*) FROM PUBLIC.PETS;
-INSERT INTO PUBLIC.PETS(PETS_ID, OWNER_ID, TYPE_ID, NAME, BIRTHDATE) VALUES
-(142841880961396, 142841788496711, 142841300122653, 'Druzhok', NULL),
-(142841883974964, 142841834950629, 142841300155478, 'Vasya', TIMESTAMP '2015-04-29 00:00:00.0'),
-(143059430815594, 142841788496711, 142850046716850, 'Pik', NULL);
-CREATE CACHED TABLE PUBLIC.PETTYPES(
-    PETTYPES_ID DECIMAL(18, 0) NOT NULL,
-    NAME VARCHAR(100)
+Alter Table Public.Pets Add Constraint Public.pets_pk Primary Key(pets_id);
+-- 3 +/- select count(*) from Public.pets;
+insert into Public.Pets(pets_id, owner_id, type_id, name, birthDate) Values
+(142841880961396, 142841788496711, 142841300122653, 'Druzhok', Null),
+(142841883974964, 142841834950629, 142841300155478, 'Vasya', Timestamp '2015-04-29 00:00:00.0'),
+(143059430815594, 142841788496711, 142850046716850, 'Pik', Null);
+Create cached Table Public.petTypes(
+    petTypes_id Decimal(18, 0) Not Null,
+    name Varchar(100)
 );
-ALTER TABLE PUBLIC.PETTYPES ADD CONSTRAINT PUBLIC.PETTYPES_PK PRIMARY KEY(PETTYPES_ID);
--- 3 +/- SELECT COUNT(*) FROM PUBLIC.PETTYPES;
-INSERT INTO PUBLIC.PETTYPES(PETTYPES_ID, NAME) VALUES
+Alter Table Public.PetTypes Add Constraint Public.petTypes_pk Primary Key(petTypes_id);
+insert into Public.PetTypes(petTypes_id, name) Values
 (142841300122653, 'Dog'),
 (142841300155478, 'Cat'),
 (142850046716850, 'Mouse');
-CREATE CACHED TABLE PUBLIC.TEMP(
-    TEMP_ID DECIMAL(18, 0) NOT NULL,
-    FIELD1 BLOB(100) NOT NULL
+Create cached Table Public.temp(
+    temp_id Decimal(18, 0) Not Null,
+    field1 blob(100) Not Null
 );
-ALTER TABLE PUBLIC.TEMP ADD CONSTRAINT PUBLIC.CONSTRAINT_2 PRIMARY KEY(TEMP_ID);
--- 0 +/- SELECT COUNT(*) FROM PUBLIC.TEMP;
-CREATE CACHED TABLE PUBLIC.DUMMYTABLE(
-    DUMMY DECIMAL(18, 0)
+Alter Table Public.Temp Add Constraint Public.tempPk Primary Key(temp_id);
+Create cached Table Public.Visit(
+    visit_id Decimal(18, 0) Not Null,
+    pet_id Decimal(65535, 32767) Not Null,
+    fromDate Timestamp,
+    toDate Timestamp,
+    description Varchar(100),
+    isPaid boolean
 );
--- 0 +/- SELECT COUNT(*) FROM PUBLIC.DUMMYTABLE;
-CREATE CACHED TABLE PUBLIC.VISIT(
-    VISIT_ID DECIMAL(18, 0) NOT NULL,
-    PET_ID DECIMAL(65535, 32767) NOT NULL,
-    FROMDATE TIMESTAMP,
-    TODATE TIMESTAMP,
-    DESCRIPTION VARCHAR(100),
-    ISPAID BOOLEAN
-);
-ALTER TABLE PUBLIC.VISIT ADD CONSTRAINT PUBLIC.VISIT_PK PRIMARY KEY(VISIT_ID);
--- 3 +/- SELECT COUNT(*) FROM PUBLIC.VISIT;
-INSERT INTO PUBLIC.VISIT(VISIT_ID, PET_ID, FROMDATE, TODATE, DESCRIPTION, ISPAID) VALUES
-(143023673259940, 142841883974964, TIMESTAMP '2015-04-28 18:58:52.604', TIMESTAMP '2015-04-29 00:00:00.0', STRINGDECODE('\u044b\u0430\u0432\u043a\u043f'), NULL),
-(143031982989403, 142841880961396, TIMESTAMP '2015-04-29 18:03:49.898', NULL, NULL, NULL),
-(143029901200462, 142841883974964, TIMESTAMP '2015-04-29 12:16:52.008', TIMESTAMP '2015-04-30 00:00:00.0', '1234', NULL);
-ALTER TABLE PUBLIC.PETS ADD CONSTRAINT PUBLIC.FK_143039780889568 FOREIGN KEY(TYPE_ID) REFERENCES PUBLIC.PETTYPES(PETTYPES_ID) ON DELETE CASCADE ON UPDATE CASCADE NOCHECK;
-ALTER TABLE PUBLIC.PETS ADD CONSTRAINT PUBLIC.FK_137568650945995 FOREIGN KEY(OWNER_ID) REFERENCES PUBLIC.OWNERS(OWNERS_ID) ON DELETE CASCADE ON UPDATE CASCADE NOCHECK;
-ALTER TABLE PUBLIC.VISIT ADD CONSTRAINT PUBLIC.FK_137568671360207 FOREIGN KEY(PET_ID) REFERENCES PUBLIC.PETS(PETS_ID) ON DELETE CASCADE ON UPDATE CASCADE NOCHECK;
+Alter Table Public.Visit Add Constraint Public.visit_pk Primary Key(visit_id);
+insert into Public.Visit(visit_id, pet_id, fromDate, toDate, description, isPaid) Values
+(143023673259940, 142841883974964, Timestamp '2015-04-28 18:58:52.604', Timestamp '2015-04-29 00:00:00.0', stringDecode('\u044b\u0430\u0432\u043a\u043f'), Null),
+(143031982989403, 142841880961396, Timestamp '2015-04-29 18:03:49.898', Null, Null, Null),
+(143029901200462, 142841883974964, Timestamp '2015-04-29 12:16:52.008', Timestamp '2015-04-30 00:00:00.0', '1234', Null);
+Alter Table Public.pets Add Constraint Public.fk_143039780889568 Foreign Key(type_id) References Public.petTypes(petTypes_id) On Delete Cascade On Update Cascade NoCheck;
+Alter Table Public.pets Add Constraint Public.fk_137568650945995 Foreign Key(owner_id) References Public.owners(owners_id) On Delete Cascade On Update Cascade NoCheck;
+Alter Table Public.visit Add Constraint Public.fk_137568671360207 Foreign Key(pet_id) References Public.pets(pets_id) On Delete Cascade On Update Cascade NoCheck;

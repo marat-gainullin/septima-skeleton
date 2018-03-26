@@ -61,6 +61,7 @@ def tomcatVersion = '9.0.2'
 
 repositories {
     jcenter()
+    mavenLocal()
     mavenCentral()
 }
 
@@ -70,7 +71,7 @@ dependencies {
             'javax.mail:mail:1.4.7'
     compile 'com.septimajs:septima-js-model:0.0.1',
             'com.septimajs:septima-js-data:0.0.1',
-            'com.septimajs:septima-js-application:0.0.1',
+            'com.septimajs:septima-js-application:0.0.2',
             'com.fasterxml.jackson.core:jackson-core:2.9.2',
             'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     runtime 'com.septimajs:septima-js-sql-driver-h2:0.0.1'
@@ -214,11 +215,11 @@ task configureTomcat(type: Copy) {
                         'className'      : "org.apache.catalina.realm.DataSourceRealm",
                         'dataSourceName' : ds.name,
                         'localDataSource': "true",
-                        'roleNameCol'    : "GROUP_NAME",
+                        'roleNameCol'    : "groupName",
                         'userCredCol'    : "USR_PASSWD",
                         'userNameCol'    : "USR_NAME",
-                        'userRoleTable'  : "APP_USERS_GROUPS",
-                        'userTable'      : "APP_USERS"
+                        'userRoleTable'  : "appUsersGroups",
+                        'userTable'      : "appUsers"
                 ])
                 realmNode.appendNode(new groovy.xml.QName("CredentialHandler"), [
                         className: "org.apache.catalina.realm.MessageDigestCredentialHandler",
@@ -368,7 +369,6 @@ task fillH2(type: Copy) {
     }
 }
 fillH2.dependsOn buildH2
-
 
 task run() {
     doFirst {

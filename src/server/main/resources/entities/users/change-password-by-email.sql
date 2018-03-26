@@ -1,0 +1,1 @@
+update appUsers set userDigest = :newDigest where userDigest = :digest and userEmail = :email

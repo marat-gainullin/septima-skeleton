@@ -1,0 +1,1 @@
+delete from AppUsersPasswordRecovering upr where upr.userEmail = :email

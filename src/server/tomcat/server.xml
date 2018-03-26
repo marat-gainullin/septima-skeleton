@@ -110,7 +110,7 @@
                          docBase="${entities.base}"
                          reloadable="true">
                     <!--
-                    <Realm className="org.apache.catalina.realm.DataSourceRealm" dataSourceName="${application.data-source}" localDataSource="true" roleNameCol="GROUP_NAME" userCredCol="USR_PASSWD" userNameCol="USR_NAME" userRoleTable="APP_USERS_GROUPS" userTable="APP_USERS">
+                    <Realm className="org.apache.catalina.realm.DataSourceRealm" dataSourceName="${application.data-source}" localDataSource="true" roleNameCol="userGroup" userCredCol="userDigest" userNameCol="USR_NAME" userRoleTable="appUsersGroups" userTable="appUsers">
                         <CredentialHandler className="org.apache.catalina.realm.MessageDigestCredentialHandler"
                                            algorithm="md5" />
                     </Realm>

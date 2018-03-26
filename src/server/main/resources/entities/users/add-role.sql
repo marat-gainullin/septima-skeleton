@@ -1,0 +1,1 @@
+insert into appUsersGroups (userEmail, userGroup) values (:email, :role)

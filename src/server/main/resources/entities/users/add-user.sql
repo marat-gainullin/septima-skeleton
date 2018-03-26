@@ -1,0 +1,1 @@
+insert into appUsers u (userEmail, userDigest) values (:email, :digest)

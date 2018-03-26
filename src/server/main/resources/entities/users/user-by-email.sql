@@ -1,0 +1,1 @@
+select u.userEmail userName, u.userEmail email, u.userAvatar avatar, u.userDisplayName displayName from appUsers u where u.userEmail = :email

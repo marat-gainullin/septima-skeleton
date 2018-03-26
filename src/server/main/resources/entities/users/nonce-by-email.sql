@@ -1,0 +1,1 @@
+Select * From AppUsersVerification uv Where uv.userEmail = :email and uv.nonceExpiration > :moment

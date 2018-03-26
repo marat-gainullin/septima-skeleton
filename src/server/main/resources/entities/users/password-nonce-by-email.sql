@@ -1,0 +1,1 @@
+Select * From AppUsersPasswordRecovering upr Where upr.userEmail = :email and upr.nonceExpiration > :moment

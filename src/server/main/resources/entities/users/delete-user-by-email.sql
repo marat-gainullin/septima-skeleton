@@ -1,0 +1,1 @@
+delete from appUsers u where u.userEmail = :email

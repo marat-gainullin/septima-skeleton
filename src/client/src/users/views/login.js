@@ -50,6 +50,7 @@ class KengaWidgets {
         }
         {
             lblLogo.text = 'Logo';
+            lblLogo.horizontalTextPosition = 'center';
             lblLogo.element.style.left = '120px';
             lblLogo.element.style.width = '248px';
             lblLogo.element.style.top = '20px';
