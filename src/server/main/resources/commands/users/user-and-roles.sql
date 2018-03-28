@@ -1,8 +1,8 @@
 select
-    u.userEmail userName,
     u.userEmail email,
+    u.userDisplayName userName,
     u.userAvatar avatar,
-    u.userDisplayName displayName,
     u.userDigest digest,
+    r.userEmail roleUserEmail,
     r.userGroup role
 from appUsers u inner join appUsersGroups r

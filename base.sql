@@ -3,31 +3,31 @@ drop all objects;
 Create User If Not Exists SA SALT 'f6e293b0d7d6a619' HASH '50007d9c9583418d29b0d79144556ca7ce646060aacc1af32ffbe2dbf9a4d55e' ADMIN;
 
 Create Table Public.AppUsers (
-    userEmail Varchar(100),
+    userEmail Varchar(100) Not Null,
     userDisplayName Varchar(100),
     userDigest Varchar(100),
     userAvatar Varchar(255)
-)
+);
 Alter Table Public.AppUsers Add Constraint Public.appUsersPk Primary Key(userEmail);
 
 Create Table Public.AppUsersGroups (
-    userEmail Varchar(100),
-    userGroup Varchar(100)
-)
+    userEmail Varchar(100) Not Null,
+    userGroup Varchar(100) Not Null
+);
 Alter Table Public.AppUsersGroups Add Constraint Public.appUsersGroupsPk Primary Key(userEmail, userGroup);
 
 Create Table Public.AppUsersVerification (
-    userEmail Varchar(100),
-    userNonce Varchar(100),
+    userEmail Varchar(100) Not Null,
+    userNonce Varchar(100) Not Null,
     nonceExpiration Timestamp Not Null
-)
+);
 Alter Table Public.AppUsersVerification Add Constraint Public.AppUsersVerificationPk Primary Key(userEmail, userNonce);
 
 Create Table Public.AppUsersPasswordRecovering (
-    userEmail Varchar(100),
-    userNonce Varchar(100),
+    userEmail Varchar(100) Not Null,
+    userNonce Varchar(100) Not Null,
     nonceExpiration Timestamp Not Null
-)
+);
 Alter Table Public.AppUsersPasswordRecovering Add Constraint Public.AppUsersPasswordRecoveringPk Primary Key(userEmail, userNonce);
 
 Create cached Table Public.Owners(

@@ -33,19 +33,18 @@ public class EmailVerificationStartPoint extends AsyncEndPoint {
 
     @Override
     public void get(Answer answer) {
-        String email = answer.getRequest().getPathInfo();
-        if (email != null && !email.isEmpty()) {
+        String pathInfo = answer.getRequest().getPathInfo();
+        if (pathInfo != null && !pathInfo.isEmpty() && pathInfo.length() > 1) {
+            String email = pathInfo.substring(1);
             String nonce = "nonce-" + new Random().nextInt(1048576);
-            SqlQuery addNonce = entities.loadQuery("entities/users/add-nonce");
+            SqlQuery addNonce = entities.loadQuery("commands/users/add-nonce");
             addNonce
                     .start(Map.of(
                             "email", email,
                             "nonce", nonce
                     ))
                     .thenApply(affected -> {
-                        String requestUrl = answer.getRequest().getRequestURL().toString();
-                        String requestBaseUrl = requestUrl.substring(0, requestUrl.length() - answer.getRequest().getPathInfo().length());
-                        String verifyEmailUrl = requestBaseUrl +
+                        String verifyEmailUrl = UsersPoint.requestBaseUrl(answer.getRequest()) +
                                 "/complete-e-mail-verification" +
                                 "?a=" + urlEncode(email) +
                                 "&b=" + urlEncode(md5(email + nonce));

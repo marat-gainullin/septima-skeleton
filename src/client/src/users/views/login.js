@@ -6,8 +6,6 @@ import Label from 'kenga-labels/label';
 
 class KengaWidgets {
     constructor () {
-        const anchorsPane = new AnchorsPane();
-        this.anchorsPane = anchorsPane;
         const btnSignIn = new Button();
         this.btnSignIn = btnSignIn;
         const txtEmail = new EmailField();
@@ -18,15 +16,13 @@ class KengaWidgets {
         this.lblLogo = lblLogo;
         const badCredentials = new Label();
         this.badCredentials = badCredentials;
-        anchorsPane.add(lblLogo);
-        anchorsPane.add(txtEmail);
-        anchorsPane.add(txtPassword);
-        anchorsPane.add(btnSignIn);
-        anchorsPane.add(badCredentials);
-        {
-            anchorsPane.element.style.width = '500px';
-            anchorsPane.element.style.height = '500px';
-        }
+        const surface = new AnchorsPane();
+        this.surface = surface;
+        surface.add(lblLogo);
+        surface.add(txtEmail);
+        surface.add(txtPassword);
+        surface.add(btnSignIn);
+        surface.add(badCredentials);
         {
             btnSignIn.text = 'Sign in';
             btnSignIn.element.style.left = '337px';
@@ -63,6 +59,10 @@ class KengaWidgets {
             badCredentials.element.style.width = '421px';
             badCredentials.element.style.top = '380px';
             badCredentials.element.style.height = '18px';
+        }
+        {
+            surface.element.style.width = '500px';
+            surface.element.style.height = '500px';
         }
     }
 }

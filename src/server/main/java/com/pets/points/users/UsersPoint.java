@@ -11,6 +11,8 @@ import com.septima.changes.InstanceAdd;
 import com.septima.queries.SqlQuery;
 
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -30,9 +32,15 @@ public class UsersPoint extends AsyncEndPoint {
 
     private String registrationTemplate;
 
-    public static String md5(String aPassword) {
+    public static String md5(String aValue) {
         try {
-            return new String(MessageDigest.getInstance("MD5").digest(aPassword.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+            byte[] digest = MessageDigest.getInstance("MD5").digest(aValue.getBytes(StandardCharsets.UTF_8));
+            //digested to hex string
+            StringBuilder sb = new StringBuilder();
+            for (byte d : digest) {
+                sb.append(Integer.toString((d & 0xff) + 0x100, 16).substring(1));
+            }
+            return sb.toString();
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException(ex);
         }
@@ -52,6 +60,12 @@ public class UsersPoint extends AsyncEndPoint {
         }
     }
 
+    public static String requestBaseUrl(HttpServletRequest req) {
+        String pathInfo = req.getPathInfo();
+        String requestUrl = req.getRequestURL().toString();
+        return requestUrl.substring(0, requestUrl.length() - (pathInfo != null ? pathInfo.length() : 0));
+    }
+
     @Override
     public void init() {
         super.init();
@@ -64,8 +78,9 @@ public class UsersPoint extends AsyncEndPoint {
 
     @Override
     public void get(Answer answer) {
-        String userEmail = answer.getRequest().getPathInfo();
-        if (userEmail != null && !userEmail.isEmpty()) {
+        String pathInfo = answer.getRequest().getPathInfo();
+        if (pathInfo != null && !pathInfo.isEmpty() && pathInfo.length() > 1) {
+            String userEmail = pathInfo.substring(1);
             SqlQuery usersQuery = entities.loadQuery("entities/users/user-by-email");
             usersQuery.requestData(Map.of("email", userEmail))
                     .thenAccept(users -> {
@@ -88,13 +103,15 @@ public class UsersPoint extends AsyncEndPoint {
         answer.onJsonObject()
                 .thenApply(userBody -> {
                     String email = (String) userBody.get("email");
+                    String userName = (String) userBody.get("userName");
                     String password = (String) userBody.get("password");
                     if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
                         return CompletableFuture.allOf(entities.bindChanges(List.of(
-                                new InstanceAdd("entities/users/user-and-roles", Map.of(
-                                        "userName", email,
+                                new InstanceAdd("commands/users/user-and-roles", Map.of(
+                                        "userName", userName != null && !userName.isEmpty() ? userName : email,
                                         "email", email,
                                         "digest", md5(password),
+                                        "roleUserEmail", email,
                                         "role", "touch-" + new Random().nextInt(1024 * 1024)
                                 ))
                         )).entrySet().stream()
@@ -106,10 +123,10 @@ public class UsersPoint extends AsyncEndPoint {
                 })
                 .thenCompose(Function.identity())
                 .thenAccept(email -> {
+                    String requestBaseUrl = requestBaseUrl(answer.getRequest());
                     answer.getResponse().setHeader("Location", "/users/" + email);
-                    answer.ok();
-                    String requestUrl = answer.getRequest().getRequestURL().toString();
-                    String requestBaseUrl = requestUrl.substring(0, requestUrl.length() - answer.getRequest().getPathInfo().length());
+                    answer.getResponse().setStatus(HttpServletResponse.SC_CREATED);
+                    answer.getContext().complete();
                     startEmailVerification(requestBaseUrl, email);
                 })
                 .exceptionally(answer::exceptionally);
@@ -117,8 +134,9 @@ public class UsersPoint extends AsyncEndPoint {
 
     @Override
     public void put(Answer answer) {
-        String oldUserEmail = answer.getRequest().getPathInfo();
-        if (oldUserEmail != null && !oldUserEmail.isEmpty()) {
+        String pathInfo = answer.getRequest().getPathInfo();
+        if (pathInfo != null && !pathInfo.isEmpty() && pathInfo.length() > 1) {
+            String oldUserEmail = pathInfo.substring(1);
             Principal principal = answer.getRequest().getUserPrincipal();
             if (principal != null) {
                 if (answer.getRequest().isUserInRole("admin") || oldUserEmail.equalsIgnoreCase(principal.getName())) {
@@ -152,12 +170,13 @@ public class UsersPoint extends AsyncEndPoint {
 
     @Override
     public void delete(Answer answer) {
-        String userEmail = answer.getRequest().getPathInfo();
-        if (userEmail != null && !userEmail.isEmpty()) {
+        String pathInfo = answer.getRequest().getPathInfo();
+        if (pathInfo != null && !pathInfo.isEmpty() && pathInfo.length() > 1) {
+            String userEmail = pathInfo.substring(1);
             Principal principal = answer.getRequest().getUserPrincipal();
             if (principal != null) {
                 if (answer.getRequest().isUserInRole("admin") || userEmail.equalsIgnoreCase(principal.getName())) {
-                    SqlQuery userDeleteQuery = entities.loadQuery("entities/users/delete-user-by-email");
+                    SqlQuery userDeleteQuery = entities.loadQuery("commands/users/delete-user-by-email");
                     userDeleteQuery.start(Map.of("email", userEmail))
                             .thenAccept(affected -> {
                                 if (affected > 0) {
@@ -180,18 +199,19 @@ public class UsersPoint extends AsyncEndPoint {
 
     private void startEmailVerification(String requestBaseUrl, String email) {
         String nonce = "nonce-" + new Random().nextInt(1048576);
-        SqlQuery addNonce = entities.loadQuery("entities/users/add-nonce");
+        SqlQuery addNonce = entities.loadQuery("commands/users/add-nonce");
         addNonce.start(Map.of(
                 "email", email,
-                "nonce", nonce
+                "nonce", nonce,
+                "expiration", new Date(new Date().getTime() + 2 * 60 * 60 * 100) // 2 Hours
         ))
                 .thenApply(affected -> {
-                    String verifyEmailUrl = requestBaseUrl +
+                    String verifyEmailUrl = requestBaseUrl.substring(0, requestBaseUrl.length() - "/users".length()) +
                             "/complete-e-mail-verification" +
                             "?a=" + urlEncode(email) +
                             "&b=" + urlEncode(md5(email + nonce));
                     return Mail.getInstance().send(
-                            "support@car.online",
+                            "no-reply@codesolver.io",
                             email,
                             "Car online registration",
                             registrationTemplate.replaceAll("\\$\\{URL\\}", verifyEmailUrl),
@@ -206,14 +226,14 @@ public class UsersPoint extends AsyncEndPoint {
     }
 
     private CompletableFuture<Integer> updateProfile(String oldUserEmail, Map<String, Object> userBody) {
-        SqlQuery userUpdateQuery = entities.loadQuery("entities/users/update-user-by-email");
+        SqlQuery userUpdateQuery = entities.loadQuery("commands/users/update-user-by-email");
         Map<String, Object> params = new HashMap<>(userBody);
         params.put("oldEmail", oldUserEmail);
         return userUpdateQuery.start(userBody);
     }
 
     private CompletableFuture<Integer> changePassword(String oldUserEmail, Map<String, Object> newPasswordBody) {
-        SqlQuery passwordUpdateQuery = entities.loadQuery("entities/users/change-password-by-email");
+        SqlQuery passwordUpdateQuery = entities.loadQuery("commands/users/change-password-by-email");
         return passwordUpdateQuery.start(Map.of(
                 "digest", md5((String) newPasswordBody.get("password")),
                 "newDigest", md5((String) newPasswordBody.get("newPassword")),
@@ -241,7 +261,7 @@ public class UsersPoint extends AsyncEndPoint {
                     .thenCompose(Function.identity())
                     .thenApply(newPasswordBody -> {
                         if (newPasswordBody.containsKey("newPassword")) {
-                            SqlQuery passwordRecoverQuery = entities.loadQuery("entities/users/recover-password-by-email");
+                            SqlQuery passwordRecoverQuery = entities.loadQuery("commands/users/recover-password-by-email");
                             return passwordRecoverQuery.start(Map.of(
                                     "newDigest", md5((String) newPasswordBody.get("newPassword")),
                                     "email", oldUserEmail

@@ -198,16 +198,14 @@ function htmlPage(id, title = `${pkg.name.substring(0, 1).toUpperCase() + pkg.na
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body id= "${id}" class=${classes}>
+    <body id="${id}" class=${classes}>
         <script type="text/javascript" src=${pkg.name}.js></script>
     </body>
 </html>`;
 }
 
 gulp.task('bundle-html', ['clean'], () => {
-    content('index.html', htmlPage('main')).pipe(gulp.dest(paths.bundle));
-    // content('protected.html', htmlPage('main')).pipe(gulp.dest(paths.bundle));
-    content('login.html', htmlPage('login')).pipe(gulp.dest(paths.bundle));
+    content('index.html', htmlPage('login')).pipe(gulp.dest(paths.bundle));
 });
 
 function watchifyIf(bundler) {

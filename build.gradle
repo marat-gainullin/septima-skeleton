@@ -70,7 +70,7 @@ dependencies {
             'javax.websocket:javax.websocket-api:1.1',
             'javax.mail:mail:1.4.7'
     compile 'com.septimajs:septima-js-model:0.0.1',
-            'com.septimajs:septima-js-data:0.0.1',
+            'com.septimajs:septima-js-data:0.0.2',
             'com.septimajs:septima-js-application:0.0.2',
             'com.fasterxml.jackson.core:jackson-core:2.9.2',
             'com.fasterxml.jackson.core:jackson-databind:2.9.2'
@@ -79,7 +79,8 @@ dependencies {
             "org.apache.tomcat:tomcat-jasper:$tomcatVersion",
             "org.apache.tomcat:tomcat-dbcp:$tomcatVersion",
             "org.apache.tomcat:tomcat-websocket:$tomcatVersion",
-            "org.apache.tomcat:tomcat-jaspic-api:$tomcatVersion"
+            "org.apache.tomcat:tomcat-jaspic-api:$tomcatVersion",
+            'javax.mail:mail:1.4.7'
     containerLibs 'com.h2database:h2:1.4.193'
     // , ... another jdbc driver for another database
     h2 'com.h2database:h2:1.4.193'
@@ -215,15 +216,18 @@ task configureTomcat(type: Copy) {
                         'className'      : "org.apache.catalina.realm.DataSourceRealm",
                         'dataSourceName' : ds.name,
                         'localDataSource': "true",
-                        'roleNameCol'    : "groupName",
-                        'userCredCol'    : "USR_PASSWD",
-                        'userNameCol'    : "USR_NAME",
+                        'userNameCol'    : "userEmail",
+                        'roleNameCol'    : "userGroup",
+                        'userCredCol'    : "userDigest",
                         'userRoleTable'  : "appUsersGroups",
                         'userTable'      : "appUsers"
                 ])
                 realmNode.appendNode(new groovy.xml.QName("CredentialHandler"), [
                         className: "org.apache.catalina.realm.MessageDigestCredentialHandler",
-                        algorithm: "md5"
+                        algorithm: "md5",
+                        encoding: "utf-8",
+                        iterations: "1",
+                        saltLength: "0"
                 ])
                 realmAdded = true
             }
@@ -310,7 +314,7 @@ task buildH2(type: Copy) {
 task h2Command(type: JavaExec) {
     classpath fileTree(h2Dir)
     main 'org.h2.tools.Server'
-    args '-tcp'
+    // args '-tcp'
 }
 
 def launchH2 = {

@@ -1,1 +1,0 @@
-Insert Into AppUsersVerification (userEmail, userNonce) values(:email, :nonce)

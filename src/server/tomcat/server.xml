@@ -109,13 +109,14 @@
                 <Context path="${entities.context}"
                          docBase="${entities.base}"
                          reloadable="true">
-                    <!--
-                    <Realm className="org.apache.catalina.realm.DataSourceRealm" dataSourceName="${application.data-source}" localDataSource="true" roleNameCol="userGroup" userCredCol="userDigest" userNameCol="USR_NAME" userRoleTable="appUsersGroups" userTable="appUsers">
-                        <CredentialHandler className="org.apache.catalina.realm.MessageDigestCredentialHandler"
-                                           algorithm="md5" />
-                    </Realm>
-                    <Resource driverClassName="org.h2.Driver" name="${data-source}" password="${data-source.dbpassword}" type="javax.sql.DataSource" url="${data-source.dburl}" username="${data-source.dbuser}"/>
-                    -->
+                    <Resource name="mail/Session" auth="Container"
+                              type="javax.mail.Session"
+                              mail.smtp.host="smtp.mail.ru"
+                              mail.smtp.port="465"
+                              mail.smtp.auth="true"
+                              mail.smtp.ssl.enable="true"
+                              mail.user="no-reply@codesolver.io"
+                              password="nhks%^mOI45(&amp;"/>
                 </Context>
             </Host>
         </Engine>
