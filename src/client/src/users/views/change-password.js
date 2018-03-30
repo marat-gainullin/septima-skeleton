@@ -5,8 +5,6 @@ import Label from 'kenga-labels/label';
 
 class KengaWidgets {
     constructor () {
-        const anchorsPane = new AnchorsPane();
-        this.anchorsPane = anchorsPane;
         const lblLogo = new Label();
         this.lblLogo = lblLogo;
         const badCredentials = new Label();
@@ -19,16 +17,14 @@ class KengaWidgets {
         this.txtOldPassword = txtOldPassword;
         const btnChangeIt = new Button();
         this.btnChangeIt = btnChangeIt;
-        anchorsPane.add(lblLogo);
-        anchorsPane.add(txtOldPassword);
-        anchorsPane.add(txtNewPassword);
-        anchorsPane.add(txtNewPasswordConfirm);
-        anchorsPane.add(btnChangeIt);
-        anchorsPane.add(badCredentials);
-        {
-            anchorsPane.element.style.width = '500px';
-            anchorsPane.element.style.height = '500px';
-        }
+        const surface = new AnchorsPane();
+        this.surface = surface;
+        surface.add(lblLogo);
+        surface.add(txtOldPassword);
+        surface.add(txtNewPassword);
+        surface.add(txtNewPasswordConfirm);
+        surface.add(btnChangeIt);
+        surface.add(badCredentials);
         {
             lblLogo.text = 'Logo';
             lblLogo.horizontalTextPosition = 'center';
@@ -72,6 +68,10 @@ class KengaWidgets {
             btnChangeIt.element.style.width = '128px';
             btnChangeIt.element.style.top = '380px';
             btnChangeIt.element.style.height = '40px';
+        }
+        {
+            surface.element.style.width = '500px';
+            surface.element.style.height = '500px';
         }
     }
 }

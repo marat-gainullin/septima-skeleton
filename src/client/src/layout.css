@@ -1,3 +1,10 @@
+@import 'node_modules/kenga/layout.css';
+@import 'node_modules/kenga-buttons/layout.css';
+@import 'node_modules/kenga-containers/layout.css';
+@import 'node_modules/kenga-fields/layout.css';
+@import 'node_modules/kenga-labels/layout.css';
+@import 'node_modules/kenga-window/layout.css';
+
 .spa-view {
 }
 

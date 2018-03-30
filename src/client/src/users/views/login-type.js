@@ -2,7 +2,6 @@ import Button from 'kenga-buttons/button';
 import AnchorsPane from 'kenga-containers/anchors-pane';
 import EmailField from 'kenga-fields/email-field';
 import Label from 'kenga-labels/label';
-import ModelRadioButton from 'kenga-model-buttons/model-radio-button';
 
 class KengaWidgets {
     constructor () {
@@ -12,8 +11,6 @@ class KengaWidgets {
         this.logo = logo;
         const continueWithFacebook = new Button();
         this.continueWithFacebook = continueWithFacebook;
-        const radioButton = new ModelRadioButton();
-        this.radioButton = radioButton;
         const txtEmail = new EmailField();
         this.txtEmail = txtEmail;
         const btnContinue = new Button();
@@ -40,9 +37,6 @@ class KengaWidgets {
             continueWithFacebook.element.style.width = '432px';
             continueWithFacebook.element.style.top = '180px';
             continueWithFacebook.element.style.height = '41px';
-        }
-        {
-            radioButton.text = 'radioButton';
         }
         {
             txtEmail.emptyText = 'E - mail';

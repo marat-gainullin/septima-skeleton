@@ -57,14 +57,14 @@ class KengaWidgets {
         {
             btnSignOut.text = 'Выход';
             btnSignOut.element.style.width = '98px';
-            btnSignOut.element.style.right = '20px';
-            btnSignOut.element.style.top = '39px';
+            btnSignOut.element.style.right = '9px';
+            btnSignOut.element.style.top = '10px';
             btnSignOut.element.style.height = '30px';
         }
         {
             lblSignedInAs.text = 'Вход не выполнен';
-            lblSignedInAs.element.style.right = '20px';
-            lblSignedInAs.element.style.top = '11px';
+            lblSignedInAs.element.style.right = '122px';
+            lblSignedInAs.element.style.top = '18px';
         }
     }
 }

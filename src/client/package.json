@@ -41,15 +41,16 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.9.0",
-    "winnie": "0.1.9",
+    "winnie": "0.1.11",
     "yargs": "^9.0.1"
   },
   "dependencies": {
-    "septima-remote": "^0.0.16",
+    "septima-remote": "^0.0.18",
     "kenga": "^0.0.30",
     "kenga-buttons": "^0.0.19",
     "kenga-containers": "^0.0.19",
     "kenga-fields": "^0.0.16",
-    "kenga-labels": "^0.0.20"
+    "kenga-labels": "^0.0.20",
+    "kenga-window": "^0.0.14"
   }
 }

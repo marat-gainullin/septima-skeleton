@@ -15,6 +15,7 @@ Create Table Public.AppUsersGroups (
     userGroup Varchar(100) Not Null
 );
 Alter Table Public.AppUsersGroups Add Constraint Public.appUsersGroupsPk Primary Key(userEmail, userGroup);
+Alter Table Public.AppUsersGroups Add Constraint Public.appUsersGroupsFk Foreign Key(userEmail) References Public.AppUsers (userEmail) On Delete Cascade;
 
 Create Table Public.AppUsersVerification (
     userEmail Varchar(100) Not Null,
@@ -22,6 +23,7 @@ Create Table Public.AppUsersVerification (
     nonceExpiration Timestamp Not Null
 );
 Alter Table Public.AppUsersVerification Add Constraint Public.AppUsersVerificationPk Primary Key(userEmail, userNonce);
+Alter Table Public.AppUsersGroups Add Constraint Public.AppUsersVerificationFk Foreign Key(userEmail) References Public.AppUsers (userEmail) On Delete Cascade;
 
 Create Table Public.AppUsersPasswordRecovering (
     userEmail Varchar(100) Not Null,
@@ -29,6 +31,7 @@ Create Table Public.AppUsersPasswordRecovering (
     nonceExpiration Timestamp Not Null
 );
 Alter Table Public.AppUsersPasswordRecovering Add Constraint Public.AppUsersPasswordRecoveringPk Primary Key(userEmail, userNonce);
+Alter Table Public.AppUsersGroups Add Constraint Public.AppUsersPasswordRecoveringFk Foreign Key(userEmail) References Public.AppUsers (userEmail) On Delete Cascade;
 
 Create cached Table Public.Owners(
     owners_id Decimal(18, 0) Not Null,

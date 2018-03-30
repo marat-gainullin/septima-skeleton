@@ -13,6 +13,7 @@ import com.septima.queries.SqlQuery;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -61,9 +62,14 @@ public class UsersPoint extends AsyncEndPoint {
     }
 
     public static String requestBaseUrl(HttpServletRequest req) {
-        String pathInfo = req.getPathInfo();
-        String requestUrl = req.getRequestURL().toString();
-        return requestUrl.substring(0, requestUrl.length() - (pathInfo != null ? pathInfo.length() : 0));
+        try {
+            String pathInfo = req.getPathInfo();
+            String encodedPathInfo = pathInfo != null ? "/" + URLEncoder.encode(pathInfo.substring(1), StandardCharsets.UTF_8.name()) : null;
+            String requestUrl = req.getRequestURL().toString();
+            return requestUrl.substring(0, requestUrl.length() - (encodedPathInfo != null ? encodedPathInfo.length() : 0));
+        } catch (UnsupportedEncodingException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @Override
@@ -85,7 +91,9 @@ public class UsersPoint extends AsyncEndPoint {
             usersQuery.requestData(Map.of("email", userEmail))
                     .thenAccept(users -> {
                         if (users.size() == 1) {
-                            answer.withJsonObject(users.get(0));
+                            Map<String, Object> userBody = new HashMap<>(users.get(0));
+                            userBody.put("confirmed", answer.getRequest().isUserInRole("confirmed"));
+                            answer.withJsonObject(userBody);
                         } else if (users.isEmpty()) {
                             throw new NoInstanceException("users", "email", userEmail);
                         } else {
@@ -112,7 +120,7 @@ public class UsersPoint extends AsyncEndPoint {
                                         "email", email,
                                         "digest", md5(password),
                                         "roleUserEmail", email,
-                                        "role", "touch-" + new Random().nextInt(1024 * 1024)
+                                        "role", "registered"
                                 ))
                         )).entrySet().stream()
                                 .map(e -> e.getKey().commit(e.getValue())).toArray(CompletableFuture[]::new))
@@ -138,30 +146,26 @@ public class UsersPoint extends AsyncEndPoint {
         if (pathInfo != null && !pathInfo.isEmpty() && pathInfo.length() > 1) {
             String oldUserEmail = pathInfo.substring(1);
             Principal principal = answer.getRequest().getUserPrincipal();
-            if (principal != null) {
-                if (answer.getRequest().isUserInRole("admin") || oldUserEmail.equalsIgnoreCase(principal.getName())) {
-                    answer.onJsonObject()
-                            .thenApply(jsonBody -> {
-                                if (jsonBody.containsKey("password")) {
-                                    return changePassword(oldUserEmail, jsonBody);
-                                } else {
-                                    return updateProfile(oldUserEmail, jsonBody);
-                                }
-                            })
-                            .thenCompose(Function.identity())
-                            .thenAccept(affected -> {
-                                if (affected > 0) {
-                                    answer.ok();
-                                } else {
-                                    throw new NoInstanceException("users", "email", oldUserEmail);
-                                }
-                            })
-                            .exceptionally(answer::exceptionally);
-                } else {
-                    throw new NoAccessException("Only user himself can update the profile of '" + oldUserEmail + "'");
-                }
+            if (principal != null && answer.getRequest().isUserInRole("admin") || oldUserEmail.equalsIgnoreCase(principal.getName())) {
+                answer.onJsonObject()
+                        .thenApply(jsonBody -> {
+                            if (jsonBody.containsKey("password")) {
+                                return changePassword(oldUserEmail, jsonBody);
+                            } else {
+                                return updateProfile(oldUserEmail, jsonBody);
+                            }
+                        })
+                        .thenCompose(Function.identity())
+                        .thenAccept(affected -> {
+                            if (affected > 0) {
+                                answer.ok();
+                            } else {
+                                throw new NoInstanceException("users", "email", oldUserEmail);
+                            }
+                        })
+                        .exceptionally(answer::exceptionally);
             } else {
-                recoverPassword(answer, oldUserEmail);
+                throw new NoAccessException("Only user himself can update the profile of '" + oldUserEmail + "'");
             }
         } else {
             throw new InvalidRequestException("User email should be specified in the form of 'users/{user-e-mail-here}'");
@@ -180,7 +184,14 @@ public class UsersPoint extends AsyncEndPoint {
                     userDeleteQuery.start(Map.of("email", userEmail))
                             .thenAccept(affected -> {
                                 if (affected > 0) {
-                                    answer.ok();
+                                    HttpServletRequest request = answer.getRequest();
+                                    HttpSession session = request.getSession(false);
+                                    if (session != null) {
+                                        session.invalidate();
+                                        answer.ok();
+                                    } else {
+                                        answer.erroneous("No logged in user");
+                                    }
                                 } else {
                                     throw new NoInstanceException("users", "email", userEmail);
                                 }
@@ -229,7 +240,7 @@ public class UsersPoint extends AsyncEndPoint {
         SqlQuery userUpdateQuery = entities.loadQuery("commands/users/update-user-by-email");
         Map<String, Object> params = new HashMap<>(userBody);
         params.put("oldEmail", oldUserEmail);
-        return userUpdateQuery.start(userBody);
+        return userUpdateQuery.start(params);
     }
 
     private CompletableFuture<Integer> changePassword(String oldUserEmail, Map<String, Object> newPasswordBody) {
@@ -239,48 +250,6 @@ public class UsersPoint extends AsyncEndPoint {
                 "newDigest", md5((String) newPasswordBody.get("newPassword")),
                 "email", oldUserEmail
         ));
-    }
-
-    private void recoverPassword(Answer answer, String oldUserEmail) {
-        String md5Hash = answer.getRequest().getParameter("b");
-        if (md5Hash != null && !md5Hash.isEmpty()) {
-            SqlQuery nonceByEmail = entities.loadQuery("entities/users/password-nonce-by-email");
-            nonceByEmail
-                    .requestData(Map.of(
-                            "email", oldUserEmail,
-                            "moment", new Date()
-                    ))
-                    .thenApply(nonces -> {
-                        boolean allowed = nonces.stream().anyMatch(nonce -> md5Hash.equals(md5(oldUserEmail + nonce.get("userNonce"))));
-                        if (allowed) {
-                            return answer.onJsonObject();
-                        } else {
-                            throw new InvalidRequestException("Password recovering URL is invalid");
-                        }
-                    })
-                    .thenCompose(Function.identity())
-                    .thenApply(newPasswordBody -> {
-                        if (newPasswordBody.containsKey("newPassword")) {
-                            SqlQuery passwordRecoverQuery = entities.loadQuery("commands/users/recover-password-by-email");
-                            return passwordRecoverQuery.start(Map.of(
-                                    "newDigest", md5((String) newPasswordBody.get("newPassword")),
-                                    "email", oldUserEmail
-                            ));
-                        } else {
-                            throw new InvalidRequestException("Recover password request should provide 'newPassword' field");
-                        }
-                    })
-                    .thenCompose(Function.identity())
-                    .thenAccept(affected -> {
-                        if (affected > 0) {
-                            answer.ok();
-                        } else {
-                            throw new NoInstanceException("users", "email", oldUserEmail);
-                        }
-                    }).exceptionally(answer::exceptionally);
-        } else {
-            throw new NoAccessException("Anonymous users can't update profiles of other users");
-        }
     }
 
 }

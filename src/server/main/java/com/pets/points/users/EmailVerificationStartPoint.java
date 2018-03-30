@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
@@ -41,15 +42,17 @@ public class EmailVerificationStartPoint extends AsyncEndPoint {
             addNonce
                     .start(Map.of(
                             "email", email,
-                            "nonce", nonce
+                            "nonce", nonce,
+                            "expiration", new Date(new Date().getTime() + 2 * 60 * 60 * 100) // 2 Hours
                     ))
                     .thenApply(affected -> {
-                        String verifyEmailUrl = UsersPoint.requestBaseUrl(answer.getRequest()) +
+                        String baseUrl = UsersPoint.requestBaseUrl(answer.getRequest());
+                        String verifyEmailUrl = baseUrl.substring(0, baseUrl.length() - "/start-verify-e-mail".length()) +
                                 "/complete-e-mail-verification" +
                                 "?a=" + urlEncode(email) +
                                 "&b=" + urlEncode(md5(email + nonce));
                         return Mail.getInstance().send(
-                                "support@car.online",
+                                "no-reply@codesolver.io",
                                 email,
                                 "Car online email verification",
                                 emailVerificationTemplate.replaceAll("\\$\\{URL\\}", verifyEmailUrl),

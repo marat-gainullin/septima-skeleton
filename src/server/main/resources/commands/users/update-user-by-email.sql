@@ -1,1 +1,7 @@
-update appUsers set userEmail = :email, userDisplayName = :displayName, userAvatar = :avatar, where userEmail = :oldEmail
+Update AppUsers
+Set
+    userEmail = :email,
+    userDisplayName = :userName,
+    userAvatar = :avatar
+Where
+    userEmail = :oldEmail

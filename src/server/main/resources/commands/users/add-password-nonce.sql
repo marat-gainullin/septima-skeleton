@@ -1,0 +1,1 @@
+Insert Into AppUsersPasswordRecovering (userEmail, userNonce, nonceExpiration) values(:email, :nonce, :expiration)

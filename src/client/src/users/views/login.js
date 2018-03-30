@@ -18,16 +18,19 @@ class KengaWidgets {
         this.badCredentials = badCredentials;
         const surface = new AnchorsPane();
         this.surface = surface;
+        const lblPasswordLost = new Label();
+        this.lblPasswordLost = lblPasswordLost;
         surface.add(lblLogo);
         surface.add(txtEmail);
         surface.add(txtPassword);
         surface.add(btnSignIn);
         surface.add(badCredentials);
+        surface.add(lblPasswordLost);
         {
             btnSignIn.text = 'Sign in';
-            btnSignIn.element.style.left = '337px';
+            btnSignIn.element.style.left = '340px';
             btnSignIn.element.style.width = '128px';
-            btnSignIn.element.style.top = '315px';
+            btnSignIn.element.style.top = '330px';
             btnSignIn.element.style.height = '40px';
         }
         {
@@ -63,6 +66,15 @@ class KengaWidgets {
         {
             surface.element.style.width = '500px';
             surface.element.style.height = '500px';
+        }
+        {
+            lblPasswordLost.text = 'Забыли пароль?';
+            lblPasswordLost.classes = 'a-label-active';
+            lblPasswordLost.element.className += ' ' + lblPasswordLost.classes;
+            lblPasswordLost.element.style.left = '40px';
+            lblPasswordLost.element.style.width = '421px';
+            lblPasswordLost.element.style.top = '300px';
+            lblPasswordLost.element.style.height = '18px';
         }
     }
 }

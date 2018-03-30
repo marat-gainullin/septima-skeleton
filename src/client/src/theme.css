@@ -1,3 +1,10 @@
+@import 'node_modules/kenga/theme.css';
+@import 'node_modules/kenga-buttons/theme.css';
+@import 'node_modules/kenga-containers/theme.css';
+@import 'node_modules/kenga-fields/theme.css';
+@import 'node_modules/kenga-labels/theme.css';
+@import 'node_modules/kenga-window/theme.css';
+
 .a-label-active {
     color: #0366d6;
 }

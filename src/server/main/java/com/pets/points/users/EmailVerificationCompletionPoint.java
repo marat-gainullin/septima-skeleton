@@ -60,7 +60,7 @@ public class EmailVerificationCompletionPoint extends AsyncEndPoint {
                         if (verified) {
                             return addRole.start(Map.of(
                                     "email", email,
-                                    "role", "registered"
+                                    "role", "confirmed"
                             ));
                         } else {
                             throw new InvalidRequestException("Email verification URL is invalid");

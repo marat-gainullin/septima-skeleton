@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource
 
 import javax.naming.Context
 import javax.naming.InitialContext
+import java.awt.*
 
 System.setProperty(Context.INITIAL_CONTEXT_FACTORY, Jndi.class.getName())
 
@@ -223,9 +224,9 @@ task configureTomcat(type: Copy) {
                         'userTable'      : "appUsers"
                 ])
                 realmNode.appendNode(new groovy.xml.QName("CredentialHandler"), [
-                        className: "org.apache.catalina.realm.MessageDigestCredentialHandler",
-                        algorithm: "md5",
-                        encoding: "utf-8",
+                        className : "org.apache.catalina.realm.MessageDigestCredentialHandler",
+                        algorithm : "md5",
+                        encoding  : "utf-8",
                         iterations: "1",
                         saltLength: "0"
                 ])
@@ -339,37 +340,32 @@ def launchH2 = {
     return h2Server
 }
 
-task fillH2(type: Copy) {
-    from "${projectDir}"
-    include 'base.sql'
-    into "$buildDir/tmp/database/"
-    rename 'base.sql', 'base.sql.applied'
-
+task fillH2() {
     doFirst {
-        def runScript = {
-            org.h2.tools.RunScript.main(
-                    '-url', props["data-source.${props['application.data-source']}.dburl"],
-                    '-user', props["data-source.${props['application.data-source']}.dbuser"],
-                    '-password', props["data-source.${props['application.data-source']}.dbpassword"],
-                    '-script', "${projectDir}/base.sql"
-            )
-            println 'Application database filled'
-        }
-        try {
-            runScript()
-        } catch (org.h2.jdbc.JdbcSQLException ex) {
-            if (ex.cause instanceof java.net.ConnectException) {
-                println 'H2 is not running. Trying to start it ...'
-                launchH2()
-                runScript()
-            } else {
-                throw ex
+        if (!project.hasProperty('view')) {
+            def runScript = {
+                org.h2.tools.RunScript.main(
+                        '-url', props["data-source.${props['application.data-source']}.dburl"],
+                        '-user', props["data-source.${props['application.data-source']}.dbuser"],
+                        '-password', props["data-source.${props['application.data-source']}.dbpassword"],
+                        '-script', "${projectDir}/base.sql"
+                )
+                println 'Application database filled'
             }
+            try {
+                runScript()
+            } catch (org.h2.jdbc.JdbcSQLException ex) {
+                if (ex.cause instanceof java.net.ConnectException) {
+                    println 'H2 is not running. Trying to start it ...'
+                    launchH2()
+                    runScript()
+                } else {
+                    throw ex
+                }
+            }
+            delete generateEntities.outputs
+            println 'Generated entities cleared'
         }
-    }
-    doLast {
-        delete generateEntities.outputs
-        println 'Generated entities cleared'
     }
 }
 fillH2.dependsOn buildH2
@@ -492,7 +488,7 @@ gulp_design_pages.dependsOn gulp_bundle_dev
 
 task design() {
     doLast {
-        java.awt.Desktop.desktop.browse new java.net.URL("$webAppUrl/design-${project['view'].replaceAll('/', '-')}.html").toURI()
+        Desktop.desktop.browse new URL("$webAppUrl/design-${project['view'].replaceAll('/', '-')}.html").toURI()
     }
 }
 
