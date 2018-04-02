@@ -115,7 +115,7 @@
                               mail.smtp.port="465"
                               mail.smtp.auth="true"
                               mail.smtp.ssl.enable="true"
-                              mail.user="no-reply@codesolver.io"
+                              mail.user="no-reply@your.awesome.mail.box.io"
                               password="nhks%^mOI45(&amp;"/>
                 </Context>
             </Host>

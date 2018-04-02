@@ -222,7 +222,7 @@ public class UsersPoint extends AsyncEndPoint {
                             "?a=" + urlEncode(email) +
                             "&b=" + urlEncode(md5(email + nonce));
                     return Mail.getInstance().send(
-                            "no-reply@codesolver.io",
+                            "no-reply@your.awesome.mail.box.io",
                             email,
                             "Car online registration",
                             registrationTemplate.replaceAll("\\$\\{URL\\}", verifyEmailUrl),
