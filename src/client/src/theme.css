@@ -4,6 +4,7 @@
 @import 'node_modules/kenga-fields/theme.css';
 @import 'node_modules/kenga-labels/theme.css';
 @import 'node_modules/kenga-window/theme.css';
+@import 'node_modules/kenga-grid/theme.css';
 
 .a-label-active {
     color: #0366d6;
@@ -12,4 +13,89 @@
 .a-label-active:hover {
     text-decoration: underline;
     cursor: pointer;
+}
+
+.p-error-popup {
+    font-family: Helevica, Arial, sans-serif;
+    font-size: 12pt;
+}
+
+.p-window-shell {
+    background: white;
+    height: 100%;
+    right: -100px;
+    transition: right 0.5s;
+    overflow-y: auto;
+}
+
+.a-danger-panel {
+    border: 1px solid #cb2431;
+    border-radius: 3px;
+}
+
+.a-danger-button {
+    color: #cb2431;
+    font-weight: bold;
+}
+
+.a-avatar {
+    border: 1px solid lightgray;
+    border-radius: 75px;
+    overflow: hidden;
+    width: 150px;
+    height: 150px;
+}
+
+.a-avatar > img {
+    width: 150px;
+    height: 150px;
+}
+
+.a-avatar-small {
+    border: 1px solid lightgray;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.a-avatar-small > img {
+    width: 40px;
+    height: 40px;
+}
+
+.a-left-slider {
+    max-width: 500px;
+    right: 0px;
+    width: 70%;
+}
+
+button {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: #fafbfc;
+    background-image: linear-gradient(-180deg, #fafbfc 0%, #eff3f6 90%);
+    background-repeat: repeat-x;
+    background-position: -1px -1px;
+    background-size: 110% 110%;
+    border: 1px solid rgba(27, 31, 35, 0.2);
+    border-radius: 0.25em;
+}
+
+input {
+    color: #24292e;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(27, 31, 35, 0.075)
+}
+
+input:focus {
+    border-color: #2188ff;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(27, 31, 35, 0.075), 0 0 0 0.2em rgba(3, 102, 214, 0.3)
 }

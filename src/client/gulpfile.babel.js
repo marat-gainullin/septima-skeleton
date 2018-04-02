@@ -205,7 +205,7 @@ function htmlPage(id, title = `${pkg.name.substring(0, 1).toUpperCase() + pkg.na
 }
 
 gulp.task('bundle-html', ['clean'], () => {
-    content('index.html', htmlPage('login')).pipe(gulp.dest(paths.bundle));
+    content('index.html', htmlPage('')).pipe(gulp.dest(paths.bundle));
 });
 
 function watchifyIf(bundler) {

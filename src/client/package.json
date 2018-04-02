@@ -51,6 +51,7 @@
     "kenga-containers": "^0.0.19",
     "kenga-fields": "^0.0.16",
     "kenga-labels": "^0.0.20",
-    "kenga-window": "^0.0.14"
+    "kenga-window": "^0.0.15",
+    "kenga-grid": "^0.0.18"
   }
 }

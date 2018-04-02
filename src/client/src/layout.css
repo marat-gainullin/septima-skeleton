@@ -4,10 +4,19 @@
 @import 'node_modules/kenga-fields/layout.css';
 @import 'node_modules/kenga-labels/layout.css';
 @import 'node_modules/kenga-window/layout.css';
+@import 'node_modules/kenga-grid/layout.css';
 
 .spa-view {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+    position: absolute;
+    overflow: hidden;
 }
 
-#login {
-    text-align: center;
+.p-menu-item {
+    text-align: left;
 }

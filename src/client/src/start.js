@@ -24,6 +24,7 @@ function openFile(mask) {
         input.accept = mask;
         input.style.width = input.style.height = '2em';
         input.style.top = input.style.left = '-1000px';
+        input.style.visibility = 'hidden';
         document.body.appendChild(input);
         Ui.on(input, Ui.Events.CHANGE, () => {
             if (input.value) {
@@ -92,37 +93,46 @@ function login(email, password = "") {
     }
 }
 
+function setupAvatar(lblAvatar, user, workspace) {
+    lblAvatar.icon = user.avatar;
+    lblAvatar.onMouseClick = (evt) => {
+        openFile('image/*')
+            .then(file => {
+                if (file.size < 1024 * 1024 * 4) {
+                    return Resource.upload('/avatars', file, 'avatar');
+                } else {
+                    alert('Выберите пожалуйста файл меньше 4 Мб');
+                    throw 'Аватарка должна быть меньше 4 Мб';
+                }
+            })
+            .then(uploadedTo => {
+                user.avatar = uploadedTo;
+                lblAvatar.icon =
+                    workspace.lblAvatar.icon = user.avatar;
+                return users.put(user.email, user);
+            })
+            .then(() => {
+                Logger.info(`User ${user.email} profile changed`);
+            })
+            .catch(Logger.severe)
+    };
+}
+
 function loggedInAs(principal) {
     users.get(principal.name)
         .then(user => {
             const workspace = new Workspace();
+            workspace.surface.element.style.width = '100%';
+            workspace.surface.element.style.height = '100%';
             document.body.appendChild(workspace.surface.element);
-            workspace.lblSignedInAs.icon = user.avatar;
+            workspace.lblAvatar.icon = user.avatar;
+            workspace.lblAvatar.toolTipText = user.userName;
             workspace.lblSignedInAs.text = user.userName;
-            workspace.lblSignedInAs.onMouseClick = (evt) => {
+            workspace.lblAvatar.onMouseClick =
+                workspace.lblSignedInAs.onMouseClick = (evt) => {
                 const verifyEmail = new Rpc.Rest('/start-verify-e-mail');
                 const profile = new ProfileView();
-                profile.lblAvatar.icon = user.avatar;
-                profile.lblAvatar.onMouseClick = (evt) => {
-                    openFile('image/*')
-                        .then(file => {
-                            if (file.size < 1024 * 1024 * 4) {
-                                return Resource.upload('/avatars', file, 'avatar');
-                            } else {
-                                alert('Выберите пожалуйста файл меньше 4 Мб');
-                                throw 'Аватарка должна быть меньше 4 Мб';
-                            }
-                        })
-                        .then(uploadedTo => {
-                            user.avatar = uploadedTo;
-                            profile.lblAvatar.icon = user.avatar;
-                            return users.put(user.email, user);
-                        })
-                        .then(() => {
-                            Logger.info(`User ${user.email} profile changed`);
-                        })
-                        .catch(Logger.severe)
-                };
+                setupAvatar(profile.lblAvatar, user, workspace);
                 profile.txtUserName.value = user.userName;
                 profile.txtUserName.onValueChange = (evt) => {
                     user.userName = evt.source.value;
@@ -134,6 +144,7 @@ function loggedInAs(principal) {
                 };
                 profile.btnChangePassword.onAction = () => {
                     const passwordChanger = new ChangePasswordView();
+                    setupAvatar(passwordChanger.lblAvatar, user, workspace);
                     passwordChanger.btnChangeIt.enabled = false;
                     passwordChanger.txtOldPassword.onKeyPress =
                         passwordChanger.txtNewPassword.onKeyPress =
@@ -169,8 +180,19 @@ function loggedInAs(principal) {
                             })
                             .catch(Logger.severe);
                     };
+                    passwordChanger.surface.element.style.width = '';
+                    passwordChanger.surface.element.style.left =
+                        passwordChanger.surface.element.style.right = '0px';
                     const w = new Window(passwordChanger.surface);
+                    w.undecorated = true;
+                    w.locationByPlatform = false;
+                    w.autoClose = true;
+                    w.maximizable = false;
+                    w.minimizable = false;
+                    w.top = 0;
                     w.showModal();
+                    w.element.style.left = '';
+                    w.element.classList.add('a-left-slider');
                     passwordChanger.txtOldPassword.focus();
                 };
                 profile.lblEmail.text = user.email;
@@ -195,8 +217,19 @@ function loggedInAs(principal) {
                             .catch(Logger.severe);
                     }
                 };
+                profile.surface.element.style.width = '';
+                profile.surface.element.style.left =
+                    profile.surface.element.style.right = '0px';
                 const w = new Window(profile.surface);
+                w.undecorated = true;
+                w.locationByPlatform = false;
+                w.autoClose = true;
+                w.maximizable = false;
+                w.minimizable = false;
+                w.top = 0;
                 w.showModal();
+                w.element.style.left = '';
+                w.element.classList.add('a-left-slider');
             };
             workspace.btnSignOut.onAction = () => {
                 principal.logout()

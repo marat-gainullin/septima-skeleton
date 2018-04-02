@@ -21,20 +21,23 @@ class KengaWidgets {
         this.surface = surface;
         const btnSignOut = new Button();
         this.btnSignOut = btnSignOut;
+        const lblAvatar = new Label();
+        this.lblAvatar = lblAvatar;
         const lblSignedInAs = new Label();
         this.lblSignedInAs = lblSignedInAs;
         surface.add(grdPets);
         surface.add(btnSignOut);
+        surface.add(lblAvatar);
         surface.add(lblSignedInAs);
         grdPets.addColumnNode(colService);
         grdPets.addColumnNode(colName);
         grdPets.addColumnNode(colType);
         grdPets.addColumnNode(colDateOfBirth);
         {
-            grdPets.element.style.left = '51px';
-            grdPets.element.style.width = '402px';
+            grdPets.element.style.left = '25px';
+            grdPets.element.style.right = '25px';
             grdPets.element.style.top = '125px';
-            grdPets.element.style.height = '338px';
+            grdPets.element.style.bottom = '25px';
         }
         {
 
@@ -57,14 +60,24 @@ class KengaWidgets {
         {
             btnSignOut.text = 'Выход';
             btnSignOut.element.style.width = '98px';
-            btnSignOut.element.style.right = '9px';
-            btnSignOut.element.style.top = '10px';
+            btnSignOut.element.style.right = '12px';
+            btnSignOut.element.style.top = '25px';
             btnSignOut.element.style.height = '30px';
         }
         {
+            lblAvatar.toolTipText = 'Вход не выполнен';
+            lblAvatar.text = null;
+            lblAvatar.classes = 'a-avatar-small';
+            lblAvatar.element.className += ' ' + lblAvatar.classes;
+            lblAvatar.element.style.width = '40px';
+            lblAvatar.element.style.right = '122px';
+            lblAvatar.element.style.top = '20px';
+            lblAvatar.element.style.height = '40px';
+        }
+        {
             lblSignedInAs.text = 'Вход не выполнен';
-            lblSignedInAs.element.style.right = '122px';
-            lblSignedInAs.element.style.top = '18px';
+            lblSignedInAs.element.style.right = '168px';
+            lblSignedInAs.element.style.top = '33px';
         }
     }
 }
