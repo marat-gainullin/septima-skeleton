@@ -167,8 +167,8 @@ gulp.task('bundle-index', ['clean'], () => {
     return gulp.src([masks.scripts], {cwd: paths.src})
         .pipe(indexFrom(process.cwd() + '/' + paths.src, '../src/'))
         .pipe(gulpConcat(`bundle-${pkg.main}`))
-        .pipe(importsToIndex(['../src/layout.css', '../src/theme.css']))
         .pipe(gulpif(argv.design, importsToIndex(['../design/layout.css', '../design/theme.css'])))
+        .pipe(importsToIndex(['../src/layout.css', '../src/theme.css']))
         .pipe(gulpif(argv.design, toIndex("import winnie from '../design/winnie.js';\n" +
             "winnie(require);")))
         .pipe(gulp.dest(paths.build));
