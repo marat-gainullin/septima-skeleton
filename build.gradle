@@ -19,7 +19,7 @@ buildscript {
     dependencies {
         classpath 'com.h2database:h2:1.4.193',
                 'com.septimajs:septima-js-model:0.0.1',
-                'com.septimajs:septima-js-generator:0.0.1',
+                'com.septimajs:septima-js-generator:0.0.2',
                 'com.zaxxer:HikariCP:2.7.6',
                 'com.moowork.gulp:com.moowork.gulp.gradle.plugin:1.2.0'
     }

@@ -8,5 +8,12 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile 'com.septimajs:septima-js-model:0.0.1',
-            'com.septimajs:septima-js-generator:0.0.1'
+            'com.septimajs:septima-js-generator:0.0.1',
+            'com.septimajs:septima-js-sql-driver-db2:0.0.1',
+            'com.septimajs:septima-js-sql-driver-h2:0.0.1',
+            'com.septimajs:septima-js-sql-driver-mssql:0.0.1',
+            'com.septimajs:septima-js-sql-driver-mysql:0.0.1',
+            'com.septimajs:septima-js-sql-driver-oracle:0.0.1',
+            'com.septimajs:septima-js-sql-driver-postgresql:0.0.1'
+
 }
