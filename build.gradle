@@ -17,9 +17,8 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'com.h2database:h2:1.4.193',
-                'com.septimajs:septima-js-model:0.0.3',
-                'com.septimajs:septima-js-generator:0.0.4',
+        classpath 'com.septimajs:septima-js-data:0.0.4',
+                'com.h2database:h2:1.4.193',
                 'com.zaxxer:HikariCP:2.7.6',
                 'com.moowork.gulp:com.moowork.gulp.gradle.plugin:1.2.0'
     }
@@ -76,7 +75,7 @@ dependencies {
             'com.fasterxml.jackson.core:jackson-core:2.9.2',
             'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     runtime 'com.septimajs:septima-js-sql-driver-h2:0.0.1'
-    tomcat  "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
+    tomcat "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
             "org.apache.tomcat:tomcat-jasper:$tomcatVersion",
             "org.apache.tomcat:tomcat-dbcp:$tomcatVersion",
             "org.apache.tomcat:tomcat-websocket:$tomcatVersion",
