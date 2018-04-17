@@ -18,8 +18,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.h2database:h2:1.4.193',
-                'com.septimajs:septima-js-model:0.0.1',
-                'com.septimajs:septima-js-generator:0.0.2',
+                'com.septimajs:septima-js-model:0.0.3',
+                'com.septimajs:septima-js-generator:0.0.4',
                 'com.zaxxer:HikariCP:2.7.6',
                 'com.moowork.gulp:com.moowork.gulp.gradle.plugin:1.2.0'
     }
@@ -70,13 +70,13 @@ dependencies {
     compileOnly 'javax.servlet:javax.servlet-api:3.1.0',
             'javax.websocket:javax.websocket-api:1.1',
             'javax.mail:mail:1.4.7'
-    compile 'com.septimajs:septima-js-model:0.0.1',
-            'com.septimajs:septima-js-data:0.0.2',
-            'com.septimajs:septima-js-application:0.0.2',
+    compile 'com.septimajs:septima-js-model:0.0.3',
+            'com.septimajs:septima-js-data:0.0.4',
+            'com.septimajs:septima-js-application:0.0.4',
             'com.fasterxml.jackson.core:jackson-core:2.9.2',
             'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     runtime 'com.septimajs:septima-js-sql-driver-h2:0.0.1'
-    tomcat "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
+    tomcat  "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
             "org.apache.tomcat:tomcat-jasper:$tomcatVersion",
             "org.apache.tomcat:tomcat-dbcp:$tomcatVersion",
             "org.apache.tomcat:tomcat-websocket:$tomcatVersion",
@@ -387,6 +387,8 @@ run.dependsOn buildTomcat,
         warExplode,
         fillH2
 
+def boundDatasources = []
+
 task bindDataSources() {
     doFirst {
         def naming = new InitialContext()
@@ -402,7 +404,9 @@ task bindDataSources() {
             // ds.maxStatements
             //if (it.schema != null)
             //    config.schema = it.schema
-            naming.bind it.name, new HikariDataSource(config)
+            def ds = new HikariDataSource(config)
+            naming.bind it.name, ds
+            boundDatasources.add ds
         }
         println 'data sources bound'
     }
@@ -430,6 +434,13 @@ task generateModels(type: GenerateModels) {
 generateModels.dependsOn generateEntities
 
 compileJava.dependsOn generateModels
+
+gradle.buildFinished {
+    boundDatasources.forEach {
+        it.close()
+    }
+    println 'data sources unbound'
+}
 
 node {
     // Version of node to use.
